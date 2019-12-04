@@ -1,0 +1,214 @@
+:root {
+    --white: #FFFFFF;
+    --brown: #4F000B;
+    --darkbrown: #330008;
+    --darkestbrown: #240005;
+    --offwhite: #FCDEBE;
+    --green: #417B5A;
+    --red: #BF211E;
+    --yellow: #F7C548;
+    --blue: #084C61;
+    --darkblue: #06313E;
+}
+
+body {
+    margin: 0;
+    background-color: var(--brown);
+    font-family: "Dosis", sans-serif;
+}
+
+/* Header */
+
+header {
+    display: grid;
+    grid-template-areas: "gameTitle pageTitle"
+                         "navBar navBar";
+    grid-template-rows: auto;
+    grid-template-columns: 1fr 3fr;
+    align-items: center;
+}
+
+header h1, header h2 {
+    font-family: "Alegreya", monospace;
+    font-weight: bold;
+    font-size: 2rem;
+    display: block;
+    background-color: var(--offwhite);
+    margin: 0;
+    padding: 1rem;
+}
+
+header h1 {
+    grid-area: gameTitle;
+    border: 0.5rem solid var(--brown);
+}
+
+header h2 {
+    grid-area: pageTitle;
+    border: 0.5rem solid var(--brown);
+}
+
+/* Nav Bar */
+header nav {
+    grid-area: navBar;
+    background-color: var(--brown);
+}
+
+nav {
+    display: flex;
+    justify-content: stretch;
+}
+
+nav a {
+    text-decoration: none;
+    font-size: 2rem;
+    color: var(--dark-gray);
+    background-color: var(--offwhite);
+    flex: 1 1 auto;
+    font-weight: bold;
+    border: 0.5rem solid var(--darkbrown);
+    padding: 1rem;
+}
+
+nav a:hover {
+    border: 0.5rem solid var(--brown);
+}
+
+/* Main content formatting */
+
+main {
+    padding: 1rem;
+    background-color: var(--offwhite);
+}
+
+h3 {
+    font-size: 3rem;
+    margin-top: 3rem;
+    color: var(--white);
+    font-family: "Alegreya", monospace;
+    background-color: var(--brown);
+    padding: 1rem;
+    word-wrap: break-word;
+    overflow:wrap;
+}
+
+h4 {
+    font-size: 2.5rem;
+    font-family: "Alegreya", monospace;
+    color: var(--darkbrown);
+    margin-left: 0.5rem;
+    word-wrap: break-word;
+}
+
+p {
+    font-size: 2rem;
+    color: var(--darkestbrown);
+    margin-left: 1rem;
+    line-height: 2.4rem;
+    overflow:wrap;
+}
+
+/* Main content structure */
+
+section {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Link styling */
+
+main a {
+    word-wrap: break-word;
+}
+
+main a:link {
+    text-decoration: none;
+    color: var(--darkblue);
+}
+
+main a:visited {
+    color: var(--green);
+}
+
+main a:hover {
+    text-decoration: underline;
+    color: var(--blue);
+}
+
+main a:active {
+    text-decoration: underline;
+    color: var(--red);
+}
+
+/* Home screen-specific styles */
+
+main#homeScreenBody {
+    text-align: center;
+}
+
+p#slogan {
+    margin-top: 4rem;
+    margin-left: 0;
+}
+
+img.skeleton {
+    max-width: 256px;
+}
+
+
+/* Responsive design */
+
+@media screen and (max-width: 1380px) {
+    img.outerCrop {
+        display: none;
+    }
+}
+@media screen and (max-width: 900px) {
+    img.innerCrop {
+        display: none;
+    }
+}
+@media screen and (max-width: 740px) {
+    nav a {
+        font-size: 1.5rem;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    header {
+        grid-template-areas: "gameTitle"
+                             "pageTitle"
+                             "navBar";
+        grid-template-columns: 1fr;
+                             
+    }
+
+    nav {
+        flex-direction: column;
+    }
+
+    main p{
+        font-size: 1.5rem;
+        line-height: 2rem;
+        margin-right: 2rem;
+    }
+    h3 {
+        font-size: 2.5rem;
+    }
+    h4 {
+        font-size: 2rem;
+    }
+
+    div.imageWrapper {
+        display: flex;
+        flex-direction: column;
+        align-items:center;
+    }
+
+    div.proposalImage img {   
+        max-width: 100%;
+    }
+    img.innerCrop {
+        display: none;
+    }
+}
