@@ -58,7 +58,7 @@ class CropLocation extends PIXI.Container {
         //
         // *** use this for planting crops
         this.addPlant = function(type) {
-            this.plant = new Plant(type, 4, 4, 64);
+            this.plant = new Plant(type, width/2, (height - 32) / 2, 64);
             this.addChild(this.plant);
 
             this.growthBar = new GrowthBar(4, this.width, this.width - 8, this.height - this.width - 4, this.plant, 0xFF0000, 0x00FF00);
@@ -96,6 +96,8 @@ class Plant extends PIXI.Sprite {
         this.y = y;
         this.width = size;
         this.height = size;
+        this.maxSize = size;
+        this.anchor.set(0.5);
         this.plantData = plantDict[plantType];
         this.currentGrowth = 0;
     }
@@ -107,6 +109,8 @@ class Plant extends PIXI.Sprite {
         if(this.currentGrowth > this.plantData.maxGrowth) {
             this.currentGrowth = this.plantData.maxGrowth;
         }
+        this.width = this.maxSize * this.growthPercent();
+        this.height = this.maxSize * this.growthPercent();
     }
 
     //returns how far the plant is on its overall growth
