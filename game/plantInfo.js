@@ -2,7 +2,7 @@
 //a class to store information that is the same for every plant
 //of a given type (e.g. all corn takes the same amount of time to grow)
 class PlantData {
-    constructor(growthSpeed, maxGrowth , harvestAmount, value) {
+    constructor(growthSpeed, maxGrowth, harvestAmount, value, color) {
         //how much the plant grows per second (so far it's always 1 because
         //it's easier to change maxGrowth, this might be removed)
         this.growthSpeed = growthSpeed;
@@ -17,6 +17,10 @@ class PlantData {
 
         //the value of each individual plant when it is harvested and sold
         this.value = value;
+
+        //a rgb color that is approximately the same as the plant itself,
+        //for visual effects and tints and stuff
+        this.color = color;
         Object.freeze(this);
     }
 }
@@ -58,10 +62,11 @@ class CropLocation extends PIXI.Container {
         //
         // *** use this for planting crops
         this.addPlant = function(type) {
-            this.plant = new Plant(type, 4, 4, 64);
+            this.removePlant();
+            this.plant = new Plant(type, width/2, (height - 32) / 2, 64);
             this.addChild(this.plant);
 
-            this.growthBar = new GrowthBar(4, this.width, this.width - 8, this.height - this.width - 4, this.plant, 0xFF0000);
+            this.growthBar = new GrowthBar(4, this.width, this.width - 8, this.height - this.width - 4, this.plant, 0xFF0000, 0x00FF00);
             this.addChild(this.growthBar);
 
             this.growthBar.redrawBar();
@@ -96,6 +101,8 @@ class Plant extends PIXI.Sprite {
         this.y = y;
         this.width = size;
         this.height = size;
+        this.maxSize = size;
+        this.anchor.set(0.5);
         this.plantData = plantDict[plantType];
         this.currentGrowth = 0;
     }
@@ -106,6 +113,15 @@ class Plant extends PIXI.Sprite {
         this.currentGrowth += deltaTime * this.plantData.growthSpeed;
         if(this.currentGrowth > this.plantData.maxGrowth) {
             this.currentGrowth = this.plantData.maxGrowth;
+        }
+        if(this.growthPercent() < 0.2) {
+            this.texture = PIXI.loader.resources["images/seeds.png"].texture;
+            this.width = this.maxSize;
+            this.height = this.maxSize;
+        } else {
+            this.texture = plantTextures[this.plantType];
+            this.width = this.maxSize * this.growthPercent();
+            this.height = this.maxSize * this.growthPercent();
         }
     }
 
@@ -120,13 +136,15 @@ class Plant extends PIXI.Sprite {
 //pretty much just rectangles
 //eventually i'll add a number and some fancy gradients
 class GrowthBar extends PIXI.Container {
-    constructor(x, y, width, height, plant, color) {
+    constructor(x, y, width, height, plant, color1, color2) {
         super();
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.plant = plant;
+        this.rgb1 = hexToRgb(color1);
+        this.rgb2 = hexToRgb(color2);
 
         this.backBar = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.backBar.x = 0;
@@ -140,21 +158,66 @@ class GrowthBar extends PIXI.Container {
         this.frontBar.y = 4;
         this.frontBar.width = width - 8;
         this.frontBar.height = height - 8;
-        this.frontBar.tint = color;
+        this.frontBar.tint = color1;
+
+        this.text = new PIXI.Text("",{
+            fontFamily: 'Arial',
+            fontSize: height - 8,
+            fill: 0xFFFFFF,
+            align: "center"
+        });
+        this.text.anchor.set(0.5);
+        this.text.x = width/2;
+        this.text.y = height/2;
 
         this.maxWidth = width - 8;
 
         this.addChild(this.backBar);
         this.addChild(this.frontBar);
+        this.addChild(this.text);
     }
 
     //redraws the bar to be a certain percent filled
     //again, percent goes from 0 to 1
     redrawBar(fraction) {
         this.frontBar.width = this.maxWidth * fraction;
+        this.frontBar.tint = rgbToHex(mixColors(this.rgb1, this.rgb2, fraction))
+        this.text.text = "" + Math.round(fraction * 100) + "%";
     }
 }
 
+class SeedBag extends PIXI.Container {
+    constructor(x, y, width, height, plantType) {
+        super()
+        
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.plantType = plantType;
+
+        this.bag = new PIXI.Sprite(PIXI.loader.resources["images/seedbag.png"].texture);
+        this.bag.x = 0;
+        this.bag.y = 0;
+        this.bag.width = width;
+        this.bag.height = height;
+        this.bag.tint = mixHexColors(plantDict[plantType].color, 0xCCCCCC, 0.5);
+        this.addChild(this.bag);
+
+        this.plantIcon = new PIXI.Sprite(plantTextures[plantType]);
+        this.plantIcon.anchor.set(0.5);
+        this.plantIcon.width = width * (3/8);
+        this.plantIcon.height = height * (3/8);
+        this.plantIcon.x = 36;
+        this.plantIcon.y = 44;
+
+        this.addChild(this.plantIcon);
+
+        this.buttonMode = true;
+        this.interactive = true;
+        this.on("pointerup", seedbagClicked);
+    }
+}
 //a helper function to map the loaded plant textures
 //to their name
 function mapPlantTextures() {
@@ -174,9 +237,9 @@ let plantTextures;
 //to all information about it
 //see PlantData for what the numbers mean
 let plantDict = {
-    "corn": new PlantData(1, 10, 5, 5),
-    "banana": new PlantData(1, 20, 6, 10),
-    "lettuce": new PlantData(1, 5, 1, 15),
-    "potato": new PlantData(1, 15, 10, 5),
-    "strawberry": new PlantData(1, 25, 10, 10)
+    "corn": new PlantData(1, 10, 5, 5, 0xCCCC00),
+    "banana": new PlantData(1, 20, 6, 10, 0xFFFF00),
+    "lettuce": new PlantData(1, 5, 1, 15, 0x55FF55),
+    "potato": new PlantData(1, 15, 10, 5, 0x8765432),
+    "strawberry": new PlantData(1, 25, 10, 10, 0xFF2222)
 };

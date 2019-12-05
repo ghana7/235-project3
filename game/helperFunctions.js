@@ -14,6 +14,9 @@ function mixColors(rgbColor1, rgbColor2, mixFraction) {
             };
 }
 
+function mixHexColors(hexColor1, hexColor2, mixFraction) {
+    return rgbToHex(mixColors(hexToRgb(hexColor1), hexToRgb(hexColor2), mixFraction));
+}
 function rgbToHex(rgbColor) {
     return rgbColor.r * 65536+ rgbColor.g * 256 + rgbColor.b;
 }
