@@ -58,6 +58,7 @@ class CropLocation extends PIXI.Container {
         //
         // *** use this for planting crops
         this.addPlant = function(type) {
+            this.removePlant();
             this.plant = new Plant(type, width/2, (height - 32) / 2, 64);
             this.addChild(this.plant);
 
