@@ -61,7 +61,7 @@ class CropLocation extends PIXI.Container {
             this.plant = new Plant(type, 4, 4, 64);
             this.addChild(this.plant);
 
-            this.growthBar = new GrowthBar(4, this.width, this.width - 8, this.height - this.width - 4, this.plant, 0xFF0000);
+            this.growthBar = new GrowthBar(4, this.width, this.width - 8, this.height - this.width - 4, this.plant, 0xFF0000, 0x00FF00);
             this.addChild(this.growthBar);
 
             this.growthBar.redrawBar();
@@ -120,13 +120,15 @@ class Plant extends PIXI.Sprite {
 //pretty much just rectangles
 //eventually i'll add a number and some fancy gradients
 class GrowthBar extends PIXI.Container {
-    constructor(x, y, width, height, plant, color) {
+    constructor(x, y, width, height, plant, color1, color2) {
         super();
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.plant = plant;
+        this.rgb1 = hexToRgb(color1);
+        this.rgb2 = hexToRgb(color2);
 
         this.backBar = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.backBar.x = 0;
@@ -140,18 +142,31 @@ class GrowthBar extends PIXI.Container {
         this.frontBar.y = 4;
         this.frontBar.width = width - 8;
         this.frontBar.height = height - 8;
-        this.frontBar.tint = color;
+        this.frontBar.tint = color1;
+
+        this.text = new PIXI.Text("",{
+            fontFamily: 'Arial',
+            fontSize: height - 8,
+            fill: 0xFFFFFF,
+            align: "center"
+        });
+        this.text.anchor.set(0.5);
+        this.text.x = width/2;
+        this.text.y = height/2;
 
         this.maxWidth = width - 8;
 
         this.addChild(this.backBar);
         this.addChild(this.frontBar);
+        this.addChild(this.text);
     }
 
     //redraws the bar to be a certain percent filled
     //again, percent goes from 0 to 1
     redrawBar(fraction) {
         this.frontBar.width = this.maxWidth * fraction;
+        this.frontBar.tint = rgbToHex(mixColors(this.rgb1, this.rgb2, fraction))
+        this.text.text = "" + Math.round(fraction * 100) + "%";
     }
 }
 
