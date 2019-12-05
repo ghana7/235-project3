@@ -8,8 +8,8 @@ const CROP_MARGIN = 4;
 let field;
 let cropLocations = [];
 
-let money = 0;
-
+let money = 50;
+let moneyDisplay;
 //mouse position
 let mousePosition = app.renderer.plugins.interaction.mouse.global;
 let cursor = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -78,6 +78,7 @@ function setup() {
     mapPlantTextures();
     createField(5,5);
     loadPlantSelection();
+    createMoneyDisplay();
 
     app.stage.addChild(field);
 
@@ -120,17 +121,33 @@ function loadPlantSelection()
 
     let topOffset = 0;
     for(let plant in plantDict) {
-        let seedbag = new SeedBag(0, topOffset, 64, 64, plant);
+        let seedbag = new SeedBag(0, topOffset, 128, 64, plant);
 
         container.addChild(seedbag);
         topOffset += 96;
     }
 }
 
+function createMoneyDisplay() {
+    moneyDisplay = new PIXI.Text("Balance: $" + money,{
+        fontFamily: 'Arial',
+        fontSize: 64,
+        fill: 0xFFFFFF,
+        align: "left"
+    });
+    moneyDisplay.x = 16;
+    moneyDisplay.y = (CROP_HEIGHT + CROP_MARGIN) * 5 + 20;
+    app.stage.addChild(moneyDisplay);
+}
+
 function seedbagClicked(e) {
     let plantType = e.target.plantType;
-    chosenPlant = plantType;
-    currentAction = "planting";
+    if(money >= plantDict[plantType].seedPrice) {
+
+        chosenPlant = plantType;
+        currentAction = "planting";
+        changeMoney(-plantDict[plantType].seedPrice);
+    }
 }
 
 function manageCursor() {
@@ -160,8 +177,7 @@ function fieldClicked()
     } else {
         if(clickedLocation.plant) {
             if(clickedLocation.plant.growthPercent() >= 0.99) {
-                money += clickedLocation.plant.plantData.value;
-                console.log("$" + money);
+                changeMoney(clickedLocation.plant.plantData.value);
             }
         }
         clickedLocation.removePlant();
@@ -173,4 +189,9 @@ function selectedCropLocation() {
     let mouseGridY = Math.floor(mousePosition.y / (CROP_MARGIN + CROP_HEIGHT));
 
     return cropLocations[mouseGridY][mouseGridX];
+}
+
+function changeMoney(amount) {
+    money += amount;
+    moneyDisplay.text = "Balance: $" + money;
 }

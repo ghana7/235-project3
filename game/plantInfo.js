@@ -2,7 +2,7 @@
 //a class to store information that is the same for every plant
 //of a given type (e.g. all corn takes the same amount of time to grow)
 class PlantData {
-    constructor(growthSpeed, maxGrowth, harvestAmount, value, color) {
+    constructor(growthSpeed, maxGrowth, harvestAmount, value, color, seedPrice) {
         //how much the plant grows per second (so far it's always 1 because
         //it's easier to change maxGrowth, this might be removed)
         this.growthSpeed = growthSpeed;
@@ -21,6 +21,9 @@ class PlantData {
         //a rgb color that is approximately the same as the plant itself,
         //for visual effects and tints and stuff
         this.color = color;
+
+        //the price of this crop's seeds
+        this.seedPrice = seedPrice;
         Object.freeze(this);
     }
 }
@@ -199,19 +202,30 @@ class SeedBag extends PIXI.Container {
         this.bag = new PIXI.Sprite(PIXI.loader.resources["images/seedbag.png"].texture);
         this.bag.x = 0;
         this.bag.y = 0;
-        this.bag.width = width;
+        this.bag.width = width * (1/2);
         this.bag.height = height;
         this.bag.tint = mixHexColors(plantDict[plantType].color, 0xCCCCCC, 0.5);
         this.addChild(this.bag);
 
         this.plantIcon = new PIXI.Sprite(plantTextures[plantType]);
         this.plantIcon.anchor.set(0.5);
-        this.plantIcon.width = width * (3/8);
+        this.plantIcon.width = width * (1/2) * (3/8);
         this.plantIcon.height = height * (3/8);
-        this.plantIcon.x = 36;
-        this.plantIcon.y = 44;
+        this.plantIcon.x = width * (1/2) * (36/64);
+        this.plantIcon.y = height * (44/64);
 
         this.addChild(this.plantIcon);
+
+        this.priceText = new PIXI.Text("$" + plantDict[plantType].seedPrice,{
+            fontFamily: 'Arial',
+            fontSize: height / 2,
+            fill: 0xFFFFFF,
+            align: "left"
+        });
+        this.priceText.anchor.set(0, 0.5);
+        this.priceText.x = width/2 + 4;
+        this.priceText.y = height/2;
+        this.addChild(this.priceText);
 
         this.buttonMode = true;
         this.interactive = true;
@@ -237,9 +251,9 @@ let plantTextures;
 //to all information about it
 //see PlantData for what the numbers mean
 let plantDict = {
-    "corn": new PlantData(1, 10, 5, 5, 0xCCCC00),
-    "banana": new PlantData(1, 20, 6, 10, 0xFFFF00),
-    "lettuce": new PlantData(1, 5, 1, 15, 0x55FF55),
-    "potato": new PlantData(1, 15, 10, 5, 0x8765432),
-    "strawberry": new PlantData(1, 25, 10, 10, 0xFF2222)
+    "corn": new PlantData(1, 10, 5, 5, 0xCCCC00, 5),
+    "banana": new PlantData(1, 20, 6, 10, 0xFFFF00, 10),
+    "lettuce": new PlantData(1, 5, 1, 15, 0x55FF55, 15),
+    "potato": new PlantData(1, 15, 10, 5, 0x8765432, 20),
+    "strawberry": new PlantData(1, 25, 10, 10, 0xFF2222, 25)
 };
