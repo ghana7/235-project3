@@ -39,6 +39,7 @@ function createField(width, height) {
 
 //Make array of paths to images for all plants in plant dictionary
 let imgSources = [];
+imgSources.push("images/seeds.png");
 for (let plant in plantDict) {
     imgSources.push("images/" + plant + ".png");
 }

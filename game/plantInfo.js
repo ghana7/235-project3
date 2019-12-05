@@ -109,8 +109,15 @@ class Plant extends PIXI.Sprite {
         if(this.currentGrowth > this.plantData.maxGrowth) {
             this.currentGrowth = this.plantData.maxGrowth;
         }
-        this.width = this.maxSize * this.growthPercent();
-        this.height = this.maxSize * this.growthPercent();
+        if(this.growthPercent() < 0.2) {
+            this.texture = PIXI.loader.resources["images/seeds.png"].texture;
+            this.width = this.maxSize;
+            this.height = this.maxSize;
+        } else {
+            this.texture = plantTextures[this.plantType]
+            this.width = this.maxSize * this.growthPercent();
+            this.height = this.maxSize * this.growthPercent();
+        }
     }
 
     //returns how far the plant is on its overall growth
