@@ -1,3 +1,5 @@
+//A single space in the inventory, holds a single item
+//Very similar structurally to cropLocations
 class InventorySpace extends PIXI.Container {
     constructor(x, y, width, height) {
         super();
@@ -29,6 +31,9 @@ class InventorySpace extends PIXI.Container {
     }
 }
 
+//A base class for any item that can be put in an inventory
+//Do not instantiate this, extend it if you have a new category
+//of item that needs to be made
 class InventoryItem extends PIXI.Sprite {
     constructor(texture, x, y, width, height) {
         super(texture);
@@ -38,11 +43,14 @@ class InventoryItem extends PIXI.Sprite {
         this.height = height;
     }
 
+    //Change this in children to denote the price
+    //Also update isSellable
     sellPrice() {
         return 0;
     }
 }
 
+//A harvested crop that can be placed in the inventory or sold
 class Crop extends InventoryItem {
     constructor(plantType, x, y, width, height) {
         super(plantTextures[plantType], x, y, width, height);
@@ -56,6 +64,8 @@ class Crop extends InventoryItem {
     }
 }
 
+//A single unit of seeds, can be planted on a cropLocation in the field
+//or stored in the inventory
 class Seeds extends InventoryItem {
     constructor(plantType, x, y, width, height) {
         super(PIXI.loader.resources["images/seedbag.png"].texture, x, y, width, height);

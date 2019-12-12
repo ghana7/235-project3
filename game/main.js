@@ -208,8 +208,12 @@ function createShippingBin() {
     shippingBin.on("pointerup", shippingBinClicked);
     app.stage.addChild(shippingBin);
 }
+
+//behavior for when the seedBags in the store are clicked
 function seedbagClicked(e) {
     let plantType = e.target.plantType;
+    //if the player has enough money to buy the seeds, put them in hand
+    //and take the money from the player
     if (money >= plantDict[plantType].seedPrice) {
 
         heldItem = new Seeds(plantType, 0, 0, 64, 64);
@@ -217,6 +221,7 @@ function seedbagClicked(e) {
     }
 }
 
+//update the display of the cursor based on the held item
 function manageCursor() {
     app.stage.removeChild(cursor);
     cursor.x = mousePosition.x;
@@ -234,11 +239,10 @@ function manageCursor() {
     app.stage.addChild(cursor);
 }
 
-//runs when field is clicked on
-//plants whatever veggie is currently chosen
-//or remove plant
+//behavior for when field is clicked
 function fieldClicked() {
     let clickedLocation = selectedCropLocation();
+    //if holding a seed and clicked space is empty, plant it
     if(heldItem != null) {
         if (heldItem.itemType == "seed") {
             if (clickedLocation.plant == null) {
@@ -247,6 +251,7 @@ function fieldClicked() {
             }
         }
     } else {
+        //if holding nothing, and clicked space is a fully grown plant, pick it up
         if (clickedLocation.plant) {
             if (clickedLocation.plant.growthPercent() >= 0.99) {
                 heldItem = new Crop(clickedLocation.plant.plantType, 0, 0, 64, 64);
@@ -257,8 +262,10 @@ function fieldClicked() {
     }
 }
 
+//behavior for when the inventory is clicked
 function inventoryClicked() {
     let clickedInvSpace = selectedInventorySpaceLocation();
+    //if holding item and clicked space is empty, put it down
     if(heldItem != null) {
         if(clickedInvSpace.item == null) {
 
@@ -266,6 +273,7 @@ function inventoryClicked() {
             heldItem = null;
         }
     } else {
+        //if not holding item and clicked space has an item, pick that item up
         if(clickedInvSpace.item != null) {
             heldItem = clickedInvSpace.item;
             clickedInvSpace.removeItem();
@@ -274,7 +282,9 @@ function inventoryClicked() {
 
 }
 
+//behavior for when the shipping bin is clicked
 function shippingBinClicked() {
+    //if holding an item and it is sellable, sell it
     if(heldItem != null) {
         if(heldItem.isSellable) {
             changeMoney(heldItem.sellPrice());
@@ -283,6 +293,8 @@ function shippingBinClicked() {
         }
     }
 }
+
+//Gets the crop location the mouse is currently over
 function selectedCropLocation() {
     let mouseGridX = Math.floor((mousePosition.x - field.x) / (PLANT_MARGIN + PLANT_WIDTH));
     let mouseGridY = Math.floor((mousePosition.y - field.y) / (PLANT_MARGIN + PLANT_HEIGHT));
@@ -290,12 +302,15 @@ function selectedCropLocation() {
     return cropLocations[mouseGridY][mouseGridX];
 }
 
+//Gets the inventory space the mouse is currently over
 function selectedInventorySpaceLocation() {
     let mouseGridX = Math.floor((mousePosition.x - inventory.x) / (INVSPACE_MARGIN + INVSPACE_WIDTH));
     let mouseGridY = Math.floor((mousePosition.y - inventory.y) / (INVSPACE_MARGIN + INVSPACE_HEIGHT));
 
     return inventorySpaces[mouseGridY][mouseGridX];
 }
+
+//adds or removes money, then updates the display
 function changeMoney(amount) {
     money += amount;
     moneyDisplay.text = "Balance: $" + money;
