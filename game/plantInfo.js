@@ -74,14 +74,6 @@ class CropLocation extends PIXI.Container {
 
             this.growthBar.redrawBar();
         }
-
-        //if the cropLocation was initialized with a plant type,
-        //put one in it
-        //
-        //i don't think this gets used anymore, but i'm leaving it for now
-        if (type) {
-            this.addPlant(type);
-        }
     }
 
     //grows the plant and updates the growth bar
@@ -134,6 +126,7 @@ class Plant extends PIXI.Sprite {
         return this.currentGrowth / this.plantData.maxGrowth;
     }
 }
+
 
 //the bar that visually shows how much the plant has grown
 //pretty much just rectangles
@@ -189,7 +182,7 @@ class GrowthBar extends PIXI.Container {
     }
 }
 
-class SeedBag extends PIXI.Container {
+class StoreSeedBag extends PIXI.Container {
     constructor(x, y, width, height, plantType) {
         super()
         
