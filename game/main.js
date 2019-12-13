@@ -42,6 +42,9 @@ let heldItem;
 
 let currentAction;
 
+//tools
+let usingSeedMaker = false;
+
 //creates the field, where all crops are located on the screen
 function createField() {
     let f = new PIXI.Container();
@@ -136,6 +139,7 @@ function setup() {
     loadPlantSelection();
     createMoneyDisplay();
     createShippingBin();
+    createSeedMaker();
 
     app.stage.addChild(field);
     app.stage.addChild(inventory);
@@ -164,6 +168,7 @@ function gameLoop() {
     if (deltaTime > 1 / 12) deltaTime = 1 / 12;
 
     manageCursor();
+    seedMakerClicked;
     growCrops(deltaTime);
 }
 
@@ -232,7 +237,11 @@ function manageCursor() {
         } else {
             cursor.texture = PIXI.Texture.WHITE;
         }
-    } else {
+    } 
+    else if (usingSeedMaker){
+        cursor.texture = PIXI.loader.resources["images/basketEmpty.png"].texture;
+    }
+    else {
         cursor.texture = PIXI.Texture.EMPTY;
     }
     
@@ -280,6 +289,16 @@ function inventoryClicked() {
         }
     }
 
+    //using seedmaker tool
+    if (usingSeedMaker && clickedInvSpace.item != null) {
+        let tempPlant = clickedInvSpace.item.plantType;
+        let seedPlant;
+        clickedInvSpace.removeItem();
+        seedPlant = new Seeds(tempPlant, 0, 0, 64, 64)
+        clickedInvSpace.addItem(seedPlant);
+        usingSeedMaker = false;
+    }
+
 }
 
 //behavior for when the shipping bin is clicked
@@ -314,4 +333,22 @@ function selectedInventorySpaceLocation() {
 function changeMoney(amount) {
     money += amount;
     moneyDisplay.text = "Balance: $" + money;
+}
+
+//loads seedMakers sprite
+function createSeedMaker(){
+    seedMaker = new PIXI.Sprite(PIXI.loader.resources["images/basketEmpty.png"].texture);
+    seedMaker.x = shippingBin.x + 200;
+    seedMaker.y = shippingBin.y;
+    seedMaker.width = 64;
+    seedMaker.height = 64;
+    seedMaker.buttonMode = true;
+    seedMaker.interactive = true;
+    seedMaker.on("pointerup", seedMakerClicked);
+    app.stage.addChild(seedMaker);
+}
+
+//seedMaker has been clicked
+function seedMakerClicked(){
+    usingSeedMaker = true;
 }

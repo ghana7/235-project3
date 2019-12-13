@@ -57,6 +57,7 @@ class Crop extends InventoryItem {
         this.plantData = plantDict[plantType];
         this.itemType = "crop";
         this.isSellable = true;
+        this.plantType = plantType;
     }
 
     sellPrice() {
