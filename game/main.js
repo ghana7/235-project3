@@ -216,6 +216,7 @@ function createShippingBin() {
 
 //behavior for when the seedBags in the store are clicked
 function seedbagClicked(e) {
+    usingSeedMaker = false;
     let plantType = e.target.plantType;
     //if the player has enough money to buy the seeds, put them in hand
     //and take the money from the player
@@ -266,6 +267,9 @@ function fieldClicked() {
                 heldItem = new Crop(clickedLocation.plant.plantType, 0, 0, 64, 64);
             
                 clickedLocation.removePlant();
+
+                //stops using seedMaker tool
+                usingSeedMaker = false;
             }
         }
     }
@@ -275,22 +279,14 @@ function fieldClicked() {
 function inventoryClicked() {
     let clickedInvSpace = selectedInventorySpaceLocation();
     //if holding item and clicked space is empty, put it down
-    if(heldItem != null) {
-        if(clickedInvSpace.item == null) {
+    if (heldItem != null) {
+        if (clickedInvSpace.item == null) {
 
             clickedInvSpace.addItem(heldItem);
             heldItem = null;
         }
-    } else {
-        //if not holding item and clicked space has an item, pick that item up
-        if(clickedInvSpace.item != null) {
-            heldItem = clickedInvSpace.item;
-            clickedInvSpace.removeItem();
-        }
-    }
-
-    //using seedmaker tool
-    if (usingSeedMaker && clickedInvSpace.item != null) {
+        //using seedmaker tool
+    } else if (usingSeedMaker && clickedInvSpace.item != null) {
         let tempPlant = clickedInvSpace.item.plantType;
         let seedPlant;
         clickedInvSpace.removeItem();
@@ -298,7 +294,13 @@ function inventoryClicked() {
         clickedInvSpace.addItem(seedPlant);
         usingSeedMaker = false;
     }
-
+    else {
+        //if not holding item and clicked space has an item, pick that item up
+        if (clickedInvSpace.item != null) {
+            heldItem = clickedInvSpace.item;
+            clickedInvSpace.removeItem();
+        }
+    }
 }
 
 //behavior for when the shipping bin is clicked
