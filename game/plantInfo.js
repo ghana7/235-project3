@@ -100,12 +100,13 @@ class Plant extends PIXI.Sprite {
         this.anchor.set(0.5);
         this.plantData = plantDict[plantType];
         this.currentGrowth = 0;
+        this.growthSpeed = this.plantData.growthSpeed;
     }
 
     //grows the plant
     //delta Time is in seconds
     grow(deltaTime) {
-        this.currentGrowth += deltaTime * this.plantData.growthSpeed;
+        this.currentGrowth += deltaTime * this.growthSpeed;
         if(this.currentGrowth > this.plantData.maxGrowth) {
             this.currentGrowth = this.plantData.maxGrowth;
         }

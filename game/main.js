@@ -45,6 +45,10 @@ let currentAction;
 //tools
 let usingSeedMaker = false;
 
+//items
+let usingGrowBooster = false;
+let growBoosterCount = 0;
+
 //creates the field, where all crops are located on the screen
 function createField() {
     let f = new PIXI.Container();
@@ -140,6 +144,7 @@ function setup() {
     createMoneyDisplay();
     createShippingBin();
     createSeedMaker();
+    createGrowBooster();
 
     app.stage.addChild(field);
     app.stage.addChild(inventory);
@@ -242,6 +247,10 @@ function manageCursor() {
     else if (usingSeedMaker){
         cursor.texture = PIXI.loader.resources["images/basketEmpty.png"].texture;
     }
+    else if(usingGrowBooster)
+    {
+        cursor.texture = PIXI.loader.resources["images/basketEmpty.png"].texture;
+    }
     else {
         cursor.texture = PIXI.Texture.EMPTY;
     }
@@ -258,6 +267,20 @@ function fieldClicked() {
             if (clickedLocation.plant == null) {
                 clickedLocation.addPlant(heldItem.plantType);
                 heldItem = null;
+                //if clickedLocation is being grow boosted
+                if(clickedLocation.growBooster && growBoosterCount < 3)
+                {
+                    //boosts grow rate by 2x
+                    clickedLocation.plant.growthSpeed = clickedLocation.plant.growthSpeed * 2;
+                    growBoosterCount++;
+                }
+                //deactivates boost after 3 plants
+                else
+                {
+                    clickedLocation.plant.growthSpeed = clickedLocation.plant.growthSpeed;
+                    growBoosterCount = 0;
+                    clickedLocation.growBooster = false;
+                }
             }
         }
     } else {
@@ -272,6 +295,13 @@ function fieldClicked() {
                 usingSeedMaker = false;
             }
         }
+    }
+
+    if(usingGrowBooster)
+    {
+        clickedLocation.growBooster = true;
+        usingGrowBooster = false;
+        console.log("activate");
     }
 }
 
@@ -292,6 +322,7 @@ function inventoryClicked() {
         clickedInvSpace.removeItem();
         seedPlant = new Seeds(tempPlant, 0, 0, 64, 64)
         clickedInvSpace.addItem(seedPlant);
+        //stops using tool
         usingSeedMaker = false;
     }
     else {
@@ -317,6 +348,7 @@ function shippingBinClicked() {
 
 //Gets the crop location the mouse is currently over
 function selectedCropLocation() {
+
     let mouseGridX = Math.floor((mousePosition.x - field.x) / (PLANT_MARGIN + PLANT_WIDTH));
     let mouseGridY = Math.floor((mousePosition.y - field.y) / (PLANT_MARGIN + PLANT_HEIGHT));
 
@@ -353,4 +385,20 @@ function createSeedMaker(){
 //seedMaker has been clicked
 function seedMakerClicked(){
     usingSeedMaker = true;
+}
+
+function createGrowBooster(){
+    growBooster = new PIXI.Sprite(PIXI.loader.resources["images/basketEmpty.png"].texture);
+    growBooster.x = shippingBin.x + 300;
+    growBooster.y = shippingBin.y;
+    growBooster.width = 64;
+    growBooster.height = 64;
+    growBooster.buttonMode = true;
+    growBooster.interactive = true;
+    growBooster.on("pointerup", growBoosterClicked);
+    app.stage.addChild(growBooster);
+}
+
+function growBoosterClicked(){
+    usingGrowBooster = true;
 }
