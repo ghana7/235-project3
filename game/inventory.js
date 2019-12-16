@@ -7,6 +7,7 @@ class InventorySpace extends PIXI.Container {
         this.y = y;
         this.width = width;
         this.height = height;
+        this.itemSize = width - 8;
 
         //background rectangle - light gray
         this.background = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -21,6 +22,10 @@ class InventorySpace extends PIXI.Container {
     addItem(item) {
         if(this.item == null) {
             this.item = item;
+            this.item.width = this.itemSize;
+            this.item.height = this.itemSize;
+            this.item.x = 4;
+            this.item.y = 4;
             this.addChild(item);
         }
     }

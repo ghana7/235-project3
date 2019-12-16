@@ -27,6 +27,22 @@ let inventory;
 let inventorySpaces = [];
 let money = 50;
 let moneyDisplay;
+
+let shippingBin;
+const SHIPPINGBIN_SIZE = 128;
+const SHIPPINGBIN_X = INVENTORY_X;
+const SHIPPINGBIN_Y = INVENTORY_Y + INVENTORY_HEIGHT * (INVSPACE_HEIGHT + INVSPACE_MARGIN) + INVSPACE_MARGIN + 64;
+
+let seedMaker;
+const SEEDMAKER_SIZE = 64;
+const SEEDMAKER_MARGIN = 4;
+const SEEDMAKER_X = SHIPPINGBIN_X + SHIPPINGBIN_SIZE + 32;
+const SEEDMAKER_Y = SHIPPINGBIN_Y;
+let seedMakerInput;
+let seedMakerOutput;
+let seedMakerInputSpaces = [];
+let seedMakerOutputSpaces = [];
+
 //mouse position
 let mousePosition = app.renderer.plugins.interaction.mouse.global;
 
@@ -42,8 +58,6 @@ let heldItem;
 
 let currentAction;
 
-//tools
-let usingSeedMaker = false;
 
 //items
 let usingGrowBooster = false;
@@ -126,6 +140,7 @@ imgSources.push("images/seeds.png");
 imgSources.push("images/seedbag.png");
 imgSources.push("images/basketEmpty.png");
 imgSources.push("images/basketFull.png");
+imgSources.push("images/seedMaker.png");
 for (let plant in plantDict) {
     imgSources.push("images/" + plant + ".png");
 }
@@ -173,7 +188,6 @@ function gameLoop() {
     if (deltaTime > 1 / 12) deltaTime = 1 / 12;
 
     manageCursor();
-    seedMakerClicked;
     growCrops(deltaTime);
 }
 
@@ -209,10 +223,10 @@ function createMoneyDisplay() {
 
 function createShippingBin() {
     shippingBin = new PIXI.Sprite(PIXI.loader.resources["images/basketEmpty.png"].texture);
-    shippingBin.x = INVENTORY_X;
-    shippingBin.y = INVENTORY_Y + inventory.height + 32;
-    shippingBin.width = 128;
-    shippingBin.height = 128;
+    shippingBin.x = SHIPPINGBIN_X;
+    shippingBin.y = SHIPPINGBIN_Y;
+    shippingBin.width = SHIPPINGBIN_SIZE;
+    shippingBin.height = SHIPPINGBIN_SIZE;
     shippingBin.buttonMode = true;
     shippingBin.interactive = true;
     shippingBin.on("pointerup", shippingBinClicked);
@@ -221,7 +235,6 @@ function createShippingBin() {
 
 //behavior for when the seedBags in the store are clicked
 function seedbagClicked(e) {
-    usingSeedMaker = false;
     let plantType = e.target.plantType;
     //if the player has enough money to buy the seeds, put them in hand
     //and take the money from the player
@@ -244,6 +257,7 @@ function manageCursor() {
             cursor.texture = PIXI.Texture.WHITE;
         }
     } 
+<<<<<<< HEAD
     else if (usingSeedMaker){
         cursor.texture = PIXI.loader.resources["images/basketEmpty.png"].texture;
     }
@@ -251,6 +265,8 @@ function manageCursor() {
     {
         cursor.texture = PIXI.loader.resources["images/basketEmpty.png"].texture;
     }
+=======
+>>>>>>> 775d98e3f5cec5d6ff070ab018780feed2a8a4a2
     else {
         cursor.texture = PIXI.Texture.EMPTY;
     }
@@ -290,9 +306,6 @@ function fieldClicked() {
                 heldItem = new Crop(clickedLocation.plant.plantType, 0, 0, 64, 64);
             
                 clickedLocation.removePlant();
-
-                //stops using seedMaker tool
-                usingSeedMaker = false;
             }
         }
     }
@@ -315,6 +328,7 @@ function inventoryClicked() {
             clickedInvSpace.addItem(heldItem);
             heldItem = null;
         }
+<<<<<<< HEAD
         //using seedmaker tool
     } else if (usingSeedMaker && clickedInvSpace.item != null) {
         let tempPlant = clickedInvSpace.item.plantType;
@@ -324,6 +338,8 @@ function inventoryClicked() {
         clickedInvSpace.addItem(seedPlant);
         //stops using tool
         usingSeedMaker = false;
+=======
+>>>>>>> 775d98e3f5cec5d6ff070ab018780feed2a8a4a2
     }
     else {
         //if not holding item and clicked space has an item, pick that item up
@@ -369,6 +385,7 @@ function changeMoney(amount) {
     moneyDisplay.text = "Balance: $" + money;
 }
 
+<<<<<<< HEAD
 //loads seedMakers sprite
 function createSeedMaker(){
     seedMaker = new PIXI.Sprite(PIXI.loader.resources["images/basketEmpty.png"].texture);
@@ -402,3 +419,5 @@ function createGrowBooster(){
 function growBoosterClicked(){
     usingGrowBooster = true;
 }
+=======
+>>>>>>> 775d98e3f5cec5d6ff070ab018780feed2a8a4a2
