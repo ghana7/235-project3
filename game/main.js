@@ -257,16 +257,11 @@ function manageCursor() {
             cursor.texture = PIXI.Texture.WHITE;
         }
     } 
-<<<<<<< HEAD
-    else if (usingSeedMaker){
-        cursor.texture = PIXI.loader.resources["images/basketEmpty.png"].texture;
-    }
+
     else if(usingGrowBooster)
     {
         cursor.texture = PIXI.loader.resources["images/basketEmpty.png"].texture;
     }
-=======
->>>>>>> 775d98e3f5cec5d6ff070ab018780feed2a8a4a2
     else {
         cursor.texture = PIXI.Texture.EMPTY;
     }
@@ -328,18 +323,7 @@ function inventoryClicked() {
             clickedInvSpace.addItem(heldItem);
             heldItem = null;
         }
-<<<<<<< HEAD
-        //using seedmaker tool
-    } else if (usingSeedMaker && clickedInvSpace.item != null) {
-        let tempPlant = clickedInvSpace.item.plantType;
-        let seedPlant;
-        clickedInvSpace.removeItem();
-        seedPlant = new Seeds(tempPlant, 0, 0, 64, 64)
-        clickedInvSpace.addItem(seedPlant);
-        //stops using tool
-        usingSeedMaker = false;
-=======
->>>>>>> 775d98e3f5cec5d6ff070ab018780feed2a8a4a2
+
     }
     else {
         //if not holding item and clicked space has an item, pick that item up
@@ -385,29 +369,10 @@ function changeMoney(amount) {
     moneyDisplay.text = "Balance: $" + money;
 }
 
-<<<<<<< HEAD
-//loads seedMakers sprite
-function createSeedMaker(){
-    seedMaker = new PIXI.Sprite(PIXI.loader.resources["images/basketEmpty.png"].texture);
-    seedMaker.x = shippingBin.x + 200;
-    seedMaker.y = shippingBin.y;
-    seedMaker.width = 64;
-    seedMaker.height = 64;
-    seedMaker.buttonMode = true;
-    seedMaker.interactive = true;
-    seedMaker.on("pointerup", seedMakerClicked);
-    app.stage.addChild(seedMaker);
-}
-
-//seedMaker has been clicked
-function seedMakerClicked(){
-    usingSeedMaker = true;
-}
-
 function createGrowBooster(){
     growBooster = new PIXI.Sprite(PIXI.loader.resources["images/basketEmpty.png"].texture);
-    growBooster.x = shippingBin.x + 300;
-    growBooster.y = shippingBin.y;
+    growBooster.x = SEEDMAKER_X + SEEDMAKER_SIZE * 3 + 64;
+    growBooster.y = SEEDMAKER_Y;
     growBooster.width = 64;
     growBooster.height = 64;
     growBooster.buttonMode = true;
@@ -419,5 +384,3 @@ function createGrowBooster(){
 function growBoosterClicked(){
     usingGrowBooster = true;
 }
-=======
->>>>>>> 775d98e3f5cec5d6ff070ab018780feed2a8a4a2
