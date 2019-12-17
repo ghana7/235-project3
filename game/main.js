@@ -24,7 +24,8 @@ const INVENTORY_WIDTH = 5;
 const INVENTORY_HEIGHT = 5;
 
 let inventory;
-let inventorySpaces = [];
+let shop;
+
 let money = 50;
 let moneyDisplay;
 
@@ -40,8 +41,6 @@ const SEEDMAKER_X = SHIPPINGBIN_X + SHIPPINGBIN_SIZE + 32;
 const SEEDMAKER_Y = SHIPPINGBIN_Y;
 let seedMakerInput;
 let seedMakerOutput;
-let seedMakerInputSpaces = [];
-let seedMakerOutputSpaces = [];
 
 //mouse position
 let mousePosition = app.renderer.plugins.interaction.mouse.global;
@@ -52,88 +51,9 @@ cursor.height = 16;
 cursor.anchor.set(0.5);
 
 
-
 //what item is currently being held by the player
 let heldItem;
 
-let currentAction;
-
-
-//items
-let usingGrowBooster = false;
-let growBoosterCount = 0;
-
-//creates the field, where all crops are located on the screen
-function createField() {
-    let f = new PIXI.Container();
-    f.x = FIELD_X;
-    f.y = FIELD_Y;
-    f.width = FIELD_WIDTH * PLANT_WIDTH + (FIELD_WIDTH + 1) * PLANT_MARGIN;
-    f.height = FIELD_HEIGHT * PLANT_HEIGHT + (FIELD_HEIGHT + 1) * PLANT_MARGIN;
-
-    //create light brown background for field
-    let fieldBackground = new PIXI.Sprite(PIXI.Texture.WHITE);
-    fieldBackground.tint = 0x654321;
-    fieldBackground.width = FIELD_WIDTH * PLANT_WIDTH + (FIELD_WIDTH + 1) * PLANT_MARGIN;
-    fieldBackground.height = FIELD_HEIGHT * PLANT_HEIGHT + (FIELD_HEIGHT + 1) * PLANT_MARGIN;
-
-    //turns the carden into a button essentially
-    fieldBackground.buttonMode = true;
-    fieldBackground.interactive = true;
-
-    f.addChild(fieldBackground);
-
-    //when field is clicked on
-    fieldBackground.on("pointerup", fieldClicked);
-
-    //create grid of crop locations
-    for (let y = 0; y < FIELD_HEIGHT; y++) {
-        cropLocations.push([]);
-        for (let x = 0; x < FIELD_WIDTH; x++) {
-            let c = new CropLocation("", x * PLANT_WIDTH + (x + 1) * PLANT_MARGIN,
-                y * PLANT_HEIGHT + (y + 1) * PLANT_MARGIN,
-                PLANT_WIDTH, PLANT_HEIGHT);
-            cropLocations[y].push(c);
-            f.addChild(c);
-        }
-    }
-
-    field = f;
-}
-
-function createInventory() {
-    let i = new PIXI.Container();
-    i.x = INVENTORY_X;
-    i.y = INVENTORY_Y;
-    i.width = INVENTORY_WIDTH * INVSPACE_WIDTH + (INVENTORY_WIDTH + 1) * INVSPACE_MARGIN;
-    i.height = INVENTORY_HEIGHT * INVSPACE_HEIGHT + (INVENTORY_HEIGHT + 1) * INVSPACE_MARGIN;
-
-    let inventoryBackground = new PIXI.Sprite(PIXI.Texture.WHITE);
-    inventoryBackground.tint = 0x444444;
-    inventoryBackground.width = INVENTORY_WIDTH * INVSPACE_WIDTH + (INVENTORY_WIDTH + 1) * INVSPACE_MARGIN;
-    inventoryBackground.height = INVENTORY_HEIGHT * INVSPACE_HEIGHT + (INVENTORY_HEIGHT + 1) * INVSPACE_MARGIN;
-
-    inventoryBackground.buttonMode = true;
-    inventoryBackground.interactive = true;
-
-    i.addChild(inventoryBackground);
-
-    inventoryBackground.on("pointerup", inventoryClicked);
-
-    //create grid of inventory spaces
-    for (let y = 0; y < INVENTORY_HEIGHT; y++) {
-        inventorySpaces.push([]);
-        for (let x = 0; x < INVENTORY_WIDTH; x++) {
-            let invSpace = new InventorySpace(x * INVSPACE_WIDTH + (x + 1) * INVSPACE_MARGIN,
-                y * INVSPACE_HEIGHT + (y + 1) * INVSPACE_MARGIN,
-                INVSPACE_WIDTH, INVSPACE_HEIGHT);
-            inventorySpaces[y].push(invSpace);
-            i.addChild(invSpace);
-        }
-    }
-
-    inventory = i;
-}
 //Make array of paths to images for all plants in plant dictionary
 let imgSources = [];
 imgSources.push("images/seeds.png");
@@ -141,6 +61,7 @@ imgSources.push("images/seedbag.png");
 imgSources.push("images/basketEmpty.png");
 imgSources.push("images/basketFull.png");
 imgSources.push("images/seedMaker.png");
+imgSources.push("images/fertilizer.png");
 for (let plant in plantDict) {
     imgSources.push("images/" + plant + ".png");
 }
@@ -154,12 +75,13 @@ PIXI.loader.
 function setup() {
     mapPlantTextures();
     createField();
-    createInventory();
-    loadPlantSelection();
+    inventory = new GeneralInventory(INVENTORY_X, INVENTORY_Y, INVENTORY_WIDTH, INVENTORY_HEIGHT,
+                                     INVSPACE_WIDTH, INVSPACE_HEIGHT, INVSPACE_MARGIN,
+                                     0x444444);
+    createShop();
     createMoneyDisplay();
     createShippingBin();
     createSeedMaker();
-    createGrowBooster();
 
     app.stage.addChild(field);
     app.stage.addChild(inventory);
@@ -170,17 +92,7 @@ function setup() {
     app.stage.sortDirty = true;
 }
 
-//Grow all crops
-function growCrops(deltaTime) {
-    for (let row of cropLocations) {
-        for (let crop of row) {
-            if (crop.plant) {
 
-                crop.grow(deltaTime);
-            }
-        }
-    }
-}
 
 function gameLoop() {
     //deltaTime code from circle blast
@@ -191,59 +103,7 @@ function gameLoop() {
     growCrops(deltaTime);
 }
 
-//loads plant selection
-function loadPlantSelection() {
-    //create container for plant selection
-    let container = new PIXI.Container();
-    app.stage.addChild(container);
-    //location of container
-    container.x = 500;
-    container.y = 50;
 
-    let topOffset = 0;
-    for (let plant in plantDict) {
-        let seedbag = new StoreSeedBag(0, topOffset, 128, 64, plant);
-
-        container.addChild(seedbag);
-        topOffset += 96;
-    }
-}
-
-function createMoneyDisplay() {
-    moneyDisplay = new PIXI.Text("Balance: $" + money, {
-        fontFamily: 'Arial',
-        fontSize: 64,
-        fill: 0xFFFFFF,
-        align: "left"
-    });
-    moneyDisplay.x = FIELD_X + 16;
-    moneyDisplay.y = FIELD_Y + (PLANT_HEIGHT + PLANT_MARGIN) * 5 + 20;
-    app.stage.addChild(moneyDisplay);
-}
-
-function createShippingBin() {
-    shippingBin = new PIXI.Sprite(PIXI.loader.resources["images/basketEmpty.png"].texture);
-    shippingBin.x = SHIPPINGBIN_X;
-    shippingBin.y = SHIPPINGBIN_Y;
-    shippingBin.width = SHIPPINGBIN_SIZE;
-    shippingBin.height = SHIPPINGBIN_SIZE;
-    shippingBin.buttonMode = true;
-    shippingBin.interactive = true;
-    shippingBin.on("pointerup", shippingBinClicked);
-    app.stage.addChild(shippingBin);
-}
-
-//behavior for when the seedBags in the store are clicked
-function seedbagClicked(e) {
-    let plantType = e.target.plantType;
-    //if the player has enough money to buy the seeds, put them in hand
-    //and take the money from the player
-    if (money >= plantDict[plantType].seedPrice) {
-
-        heldItem = new Seeds(plantType, 0, 0, 64, 64);
-        changeMoney(-plantDict[plantType].seedPrice);
-    }
-}
 
 //update the display of the cursor based on the held item
 function manageCursor() {
@@ -251,17 +111,12 @@ function manageCursor() {
     cursor.x = mousePosition.x;
     cursor.y = mousePosition.y;
     if(heldItem) {
-        if (heldItem.itemType == "crop" || heldItem.itemType == "seed") {
+        if (heldItem.itemType == "crop" || heldItem.itemType == "seed" || heldItem.itemType == "fertilizer") {
             cursor.texture = heldItem.texture;
         } else {
             cursor.texture = PIXI.Texture.WHITE;
         }
     } 
-
-    else if(usingGrowBooster)
-    {
-        cursor.texture = PIXI.loader.resources["images/basketEmpty.png"].texture;
-    }
     else {
         cursor.texture = PIXI.Texture.EMPTY;
     }
@@ -269,118 +124,5 @@ function manageCursor() {
     app.stage.addChild(cursor);
 }
 
-//behavior for when field is clicked
-function fieldClicked() {
-    let clickedLocation = selectedCropLocation();
-    //if holding a seed and clicked space is empty, plant it
-    if(heldItem != null) {
-        if (heldItem.itemType == "seed") {
-            if (clickedLocation.plant == null) {
-                clickedLocation.addPlant(heldItem.plantType);
-                heldItem = null;
-                //if clickedLocation is being grow boosted
-                if(clickedLocation.growBooster && growBoosterCount < 3)
-                {
-                    //boosts grow rate by 2x
-                    clickedLocation.plant.growthSpeed = clickedLocation.plant.growthSpeed * 2;
-                    growBoosterCount++;
-                }
-                //deactivates boost after 3 plants
-                else
-                {
-                    clickedLocation.plant.growthSpeed = clickedLocation.plant.growthSpeed;
-                    growBoosterCount = 0;
-                    clickedLocation.growBooster = false;
-                }
-            }
-        }
-    } else {
-        //if holding nothing, and clicked space is a fully grown plant, pick it up
-        if (clickedLocation.plant) {
-            if (clickedLocation.plant.growthPercent() >= 0.99) {
-                heldItem = new Crop(clickedLocation.plant.plantType, 0, 0, 64, 64);
-            
-                clickedLocation.removePlant();
-            }
-        }
-    }
 
-    if(usingGrowBooster)
-    {
-        clickedLocation.growBooster = true;
-        usingGrowBooster = false;
-        console.log("activate");
-    }
-}
 
-//behavior for when the inventory is clicked
-function inventoryClicked() {
-    let clickedInvSpace = selectedInventorySpaceLocation();
-    //if holding item and clicked space is empty, put it down
-    if (heldItem != null) {
-        if (clickedInvSpace.item == null) {
-
-            clickedInvSpace.addItem(heldItem);
-            heldItem = null;
-        }
-
-    }
-    else {
-        //if not holding item and clicked space has an item, pick that item up
-        if (clickedInvSpace.item != null) {
-            heldItem = clickedInvSpace.item;
-            clickedInvSpace.removeItem();
-        }
-    }
-}
-
-//behavior for when the shipping bin is clicked
-function shippingBinClicked() {
-    //if holding an item and it is sellable, sell it
-    if(heldItem != null) {
-        if(heldItem.isSellable) {
-            changeMoney(heldItem.sellPrice());
-            
-            heldItem = null;
-        }
-    }
-}
-
-//Gets the crop location the mouse is currently over
-function selectedCropLocation() {
-
-    let mouseGridX = Math.floor((mousePosition.x - field.x) / (PLANT_MARGIN + PLANT_WIDTH));
-    let mouseGridY = Math.floor((mousePosition.y - field.y) / (PLANT_MARGIN + PLANT_HEIGHT));
-
-    return cropLocations[mouseGridY][mouseGridX];
-}
-
-//Gets the inventory space the mouse is currently over
-function selectedInventorySpaceLocation() {
-    let mouseGridX = Math.floor((mousePosition.x - inventory.x) / (INVSPACE_MARGIN + INVSPACE_WIDTH));
-    let mouseGridY = Math.floor((mousePosition.y - inventory.y) / (INVSPACE_MARGIN + INVSPACE_HEIGHT));
-
-    return inventorySpaces[mouseGridY][mouseGridX];
-}
-
-//adds or removes money, then updates the display
-function changeMoney(amount) {
-    money += amount;
-    moneyDisplay.text = "Balance: $" + money;
-}
-
-function createGrowBooster(){
-    growBooster = new PIXI.Sprite(PIXI.loader.resources["images/basketEmpty.png"].texture);
-    growBooster.x = SEEDMAKER_X + SEEDMAKER_SIZE * 3 + 64;
-    growBooster.y = SEEDMAKER_Y;
-    growBooster.width = 64;
-    growBooster.height = 64;
-    growBooster.buttonMode = true;
-    growBooster.interactive = true;
-    growBooster.on("pointerup", growBoosterClicked);
-    app.stage.addChild(growBooster);
-}
-
-function growBoosterClicked(){
-    usingGrowBooster = true;
-}

@@ -2,11 +2,7 @@
 //a class to store information that is the same for every plant
 //of a given type (e.g. all corn takes the same amount of time to grow)
 class PlantData {
-    constructor(growthSpeed, maxGrowth, harvestAmount, value, color, seedPrice) {
-        //how much the plant grows per second (so far it's always 1 because
-        //it's easier to change maxGrowth, this might be removed)
-        this.growthSpeed = growthSpeed;
-
+    constructor(maxGrowth, harvestAmount, value, color, seedPrice, types, tier) {
         //how much growth the plant takes to be harvestable
         this.maxGrowth = maxGrowth;
 
@@ -24,6 +20,12 @@ class PlantData {
 
         //the price of this crop's seeds
         this.seedPrice = seedPrice;
+
+        //the different plant types this plant is
+        this.types = types;
+        //the level of combination the plant is at
+        //approximately a plant power level, but not exactly
+        this.tier = tier;
         Object.freeze(this);
     }
 }
@@ -41,6 +43,7 @@ class CropLocation extends PIXI.Container {
 
         this.type = type;
         this.plant = null;
+        this.growthSpeed = 1;
 
         //background rectangle - dark brown
         this.background = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -78,7 +81,7 @@ class CropLocation extends PIXI.Container {
 
     //grows the plant and updates the growth bar
     grow(deltaTime) {
-        this.plant.grow(deltaTime);
+        this.plant.grow(deltaTime * this.growthSpeed);
         this.growthBar.redrawBar(this.plant.growthPercent());
     }
 }
@@ -106,7 +109,7 @@ class Plant extends PIXI.Sprite {
     //grows the plant
     //delta Time is in seconds
     grow(deltaTime) {
-        this.currentGrowth += deltaTime * this.growthSpeed;
+        this.currentGrowth += deltaTime;
         if(this.currentGrowth > this.plantData.maxGrowth) {
             this.currentGrowth = this.plantData.maxGrowth;
         }
@@ -183,49 +186,7 @@ class GrowthBar extends PIXI.Container {
     }
 }
 
-class StoreSeedBag extends PIXI.Container {
-    constructor(x, y, width, height, plantType) {
-        super()
-        
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.plantType = plantType;
 
-        this.bag = new PIXI.Sprite(PIXI.loader.resources["images/seedbag.png"].texture);
-        this.bag.x = 0;
-        this.bag.y = 0;
-        this.bag.width = width * (1/2);
-        this.bag.height = height;
-        this.bag.tint = mixHexColors(plantDict[plantType].color, 0xCCCCCC, 0.5);
-        this.addChild(this.bag);
-
-        this.plantIcon = new PIXI.Sprite(plantTextures[plantType]);
-        this.plantIcon.anchor.set(0.5);
-        this.plantIcon.width = width * (1/2) * (3/8);
-        this.plantIcon.height = height * (3/8);
-        this.plantIcon.x = width * (1/2) * (36/64);
-        this.plantIcon.y = height * (44/64);
-
-        this.addChild(this.plantIcon);
-
-        this.priceText = new PIXI.Text("$" + plantDict[plantType].seedPrice,{
-            fontFamily: 'Arial',
-            fontSize: height / 2,
-            fill: 0xFFFFFF,
-            align: "left"
-        });
-        this.priceText.anchor.set(0, 0.5);
-        this.priceText.x = width/2 + 4;
-        this.priceText.y = height/2;
-        this.addChild(this.priceText);
-
-        this.buttonMode = true;
-        this.interactive = true;
-        this.on("pointerup", seedbagClicked);
-    }
-}
 //a helper function to map the loaded plant textures
 //to their name
 function mapPlantTextures() {
@@ -245,9 +206,21 @@ let plantTextures;
 //to all information about it
 //see PlantData for what the numbers mean
 let plantDict = {
-    "corn": new PlantData(1, 10, 5, 5, 0xCCCC00, 5),
-    "banana": new PlantData(1, 20, 6, 10, 0xFFFF00, 10),
-    "lettuce": new PlantData(1, 5, 1, 15, 0x55FF55, 15),
-    "potato": new PlantData(1, 15, 10, 5, 0x8765432, 20),
-    "strawberry": new PlantData(1, 25, 10, 10, 0xFF2222, 25)
+    "melon": new PlantData(60, 1, 150, 0xCCFF66, 25, ["tropical", "gourd"], 2),
+    "banana": new PlantData(20, 6, 10, 0xFFFF00, 10, ["tropical"], 1),
+    "grapes": new PlantData(20, 4, 15, 0x8800BB, 10, ["tropical", "berry"], 2),
+    "strawberry": new PlantData(25, 10, 10, 0xFF2222, 25, ["berry"], 1),
+    "garlic": new PlantData(10, 10, 5, 0xFFFFBB, 5, ["spice"], 1),
+    "chilipepper": new PlantData(15, 15, 15, 0xFF1111, 5, ["spice", "stalk", "gourd"], 3),
+    "scallion": new PlantData(15, 5, 25, 0x88FF88, 10, ["leafy", "spice"], 2),
+    "lettuce": new PlantData(5, 1, 15, 0x55FF55, 15, ["leafy"], 1),
+    "onion": new PlantData(25, 3, 30, 0x889966, 10, ["leafy", "spice", "root"], 3),
+    "potato": new PlantData(15, 10, 5, 0x8765432, 20, ["root"], 1),
+    "greenbean": new PlantData(10, 20, 5, 0x66FF66, 5, ["root", "grain", "leafy"], 3),
+    "broccoli": new PlantData(30, 5, 25, 0x337733, 10, ["grain", "leafy"], 2),
+    "wheat": new PlantData(60, 10, 20, 0xCCCC00, 10, ["grain"], 1),
+    "corn": new PlantData(10, 5, 5, 0xCCCC00, 5, ["grain", "stalk"], 2),
+    "tomato": new PlantData(20, 10, 10, 0xFF5500, 10, ["stalk"], 1),
+    "bellpepper": new PlantData(30, 5, 40, 0xFFFF00, 10, ["stalk", "gourd"], 2),
+    "pumpkin": new PlantData(40, 1, 100, 0xFF7700, 10, ["gourd"], 1)
 };
