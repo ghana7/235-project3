@@ -50,6 +50,13 @@ cursor.width = 16;
 cursor.height = 16;
 cursor.anchor.set(0.5);
 
+//timer
+let deadline;
+//time left
+let t;
+//timer text
+let timerText;
+
 
 //what item is currently being held by the player
 let heldItem;
@@ -90,6 +97,12 @@ function setup() {
 
     app.ticker.add(gameLoop);
     app.stage.sortDirty = true;
+
+    //timer for game
+    deadline = new Date();
+    //adds 10 minutes to timer
+    deadline.setMinutes(deadline.getMinutes() + 10);
+
 }
 
 
@@ -99,8 +112,32 @@ function gameLoop() {
     let deltaTime = 1 / app.ticker.FPS;
     if (deltaTime > 1 / 12) deltaTime = 1 / 12;
 
-    manageCursor();
-    growCrops(deltaTime);
+    timer();
+    //while time has not run out
+    if(t > 0)
+    {
+        manageCursor();
+        growCrops(deltaTime);
+    }
+    //displays gameOver Text
+    else
+    {
+        let gameOverText = new PIXI.Text("Game Over!");
+        textStyle = new PIXI.TextStyle({
+            fill: 0xFFFFFF,
+            fontSize: 64,
+            fontFamily: "Futura",
+            stroke: 0x000000,
+            strokeThickness: 6
+        });
+        gameOverText.style = textStyle;
+        gameOverText.x = 100;
+        gameOverText.y = 275;
+        app.stage.addChild(gameOverText);  
+    }
+
+    //displays timer to players
+    displayTimer();
 }
 
 
@@ -122,6 +159,39 @@ function manageCursor() {
     }
     
     app.stage.addChild(cursor);
+}
+
+//timer function
+function timer(){
+    let now = new Date().getTime();
+    t = deadline - now;
+    minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
+    seconds = Math.floor((t%(1000*60))/1000);
+    if(minutes<0)
+    {
+        minutes = 0;
+    }
+    if(seconds < 0)
+    {
+        seconds = 0;
+    }
+}
+
+//shows player the timer
+function displayTimer(){
+    app.stage.removeChild(timerText);
+    timerText = new PIXI.Text(minutes + "m " + seconds + "s");
+    textStyle = new PIXI.TextStyle({
+        fill: 0xFFFFFF,
+        fontSize: 100,
+        fontFamily: "Futura",
+        stroke: 0x000000,
+        strokeThickness: 6
+    });
+    timerText.style = textStyle;
+    timerText.x = 1350;
+    timerText.y = 275;
+    app.stage.addChild(timerText); 
 }
 
 
