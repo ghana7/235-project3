@@ -7,6 +7,8 @@ function createShippingBin() {
     shippingBin.buttonMode = true;
     shippingBin.interactive = true;
     shippingBin.on("pointerup", shippingBinClicked);
+    shippingBin.on("mouseover", shippingBinHoverStart);
+    shippingBin.on("mouseout", shippingBinHoverStop);
     app.stage.addChild(shippingBin);
 }
 
@@ -20,4 +22,12 @@ function shippingBinClicked() {
             heldItem = null;
         }
     }
+}
+
+function shippingBinHoverStart() {
+    shippingBin.texture = PIXI.loader.resources["images/basketFull.png"].texture;
+}
+
+function shippingBinHoverStop() {
+    shippingBin.texture = PIXI.loader.resources["images/basketEmpty.png"].texture;
 }

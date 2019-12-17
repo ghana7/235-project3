@@ -3,18 +3,26 @@ function createShop() {
     app.stage.addChild(shop);
     shop.x = 500;
     shop.y = 64;
+    shop.width = 400;
+    shop.height = 512;
 
     createSeedShops();
     createFertilizerShop();
 }
 function createSeedShops() {
     let topOffset = 0;
+    let sideOffset = 0;
     for (let plant in plantDict) {
         if(plantDict[plant].tier ==1) {
-            let seedbag = new StoreSeedBag(0, topOffset, 128, 64, plant);
-
+            let seedbag = new StoreSeedBag(sideOffset, topOffset, 128, 64, plant);
+            seedbag.on("mouseover", function() {showPlantInfoBox(plant)});
+            seedbag.on("mouseout", hideInfoBox);
             shop.addChild(seedbag);
             topOffset += 96;
+            if(topOffset >= 384) {
+                topOffset = 0;
+                sideOffset = 144;
+            }
         }
         
     }
@@ -26,10 +34,18 @@ function createFertilizerShop(){
     fertilizerShop.buttonMode = true;
     fertilizerShop.interactive = true;
     fertilizerShop.x = 0;
-    fertilizerShop.y = 8 * 96;
+    fertilizerShop.y = 384;
     fertilizerShop.width = 128;
     fertilizerShop.height = 64;
     fertilizerShop.on("pointerup", fertilizerShopClicked);
+
+    let background = new PIXI.Sprite(PIXI.Texture.WHITE);
+    background.x = 0;
+    background.y = 0;
+    background.width = 128;
+    background.height = 64;
+    background.tint = 0xCCCCCC;
+    fertilizerShop.addChild(background);
 
     fertilizerImage = new PIXI.Sprite(PIXI.loader.resources["images/fertilizer.png"].texture);
     fertilizerImage.x = 0;
@@ -41,7 +57,7 @@ function createFertilizerShop(){
     let priceText = new PIXI.Text("$15", {
         fontFamily: 'Arial',
         fontSize: 32,
-        fill: 0xFFFFFF,
+        fill: 0x000000,
         align: "left"
     });
     priceText.anchor.set(0, 0.5);
@@ -49,6 +65,10 @@ function createFertilizerShop(){
     priceText.y = 32
     fertilizerShop.addChild(priceText);
 
+    fertilizerShop.on("mouseover", function(mouseData) {showInfoBox(PIXI.loader.resources["images/fertilizer.png"].texture,
+                                               "Fertilizer", "Apply on a space to make crops grow faster on it.",
+                                               0xCCCCCC)});
+    fertilizerShop.on("mouseout", hideInfoBox);
     shop.addChild(fertilizerShop);
 }
 
@@ -65,7 +85,7 @@ function createMoneyDisplay() {
         fill: 0xFFFFFF,
         align: "left"
     });
-    moneyDisplay.x = FIELD_X + 16;
+    moneyDisplay.x = FIELD_X;
     moneyDisplay.y = FIELD_Y + (PLANT_HEIGHT + PLANT_MARGIN) * 5 + 20;
     app.stage.addChild(moneyDisplay);
 }
@@ -107,6 +127,14 @@ class StoreSeedBag extends PIXI.Container {
         this.height = height;
         this.plantType = plantType;
 
+        this.background = new PIXI.Sprite(PIXI.Texture.WHITE);
+        this.background.x = 0;
+        this.background.y = 0;
+        this.background.width = width;
+        this.background.height = height;
+        this.background.tint = mixHexColors(plantDict[plantType].color, 0xCCCCCC, 0.8);
+        this.addChild(this.background);
+
         this.bag = new PIXI.Sprite(PIXI.loader.resources["images/seedbag.png"].texture);
         this.bag.x = 0;
         this.bag.y = 0;
@@ -124,10 +152,12 @@ class StoreSeedBag extends PIXI.Container {
 
         this.addChild(this.plantIcon);
 
+        
+        
         this.priceText = new PIXI.Text("$" + plantDict[plantType].seedPrice,{
             fontFamily: 'Arial',
             fontSize: height / 2,
-            fill: 0xFFFFFF,
+            fill: 0x000000,
             align: "left"
         });
         this.priceText.anchor.set(0, 0.5);

@@ -29,6 +29,7 @@ function createField() {
                 y * PLANT_HEIGHT + (y + 1) * PLANT_MARGIN,
                 PLANT_WIDTH, PLANT_HEIGHT);
             cropLocations[y].push(c);
+            
             f.addChild(c);
         }
     }

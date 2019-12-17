@@ -18,7 +18,7 @@ const INVSPACE_WIDTH = 72;
 const INVSPACE_HEIGHT = 72;
 const INVSPACE_MARGIN = 4;
 
-const INVENTORY_X = 640;
+const INVENTORY_X = 800;
 const INVENTORY_Y = 64;
 const INVENTORY_WIDTH = 5;
 const INVENTORY_HEIGHT = 5;
@@ -110,6 +110,8 @@ function manageCursor() {
     app.stage.removeChild(cursor);
     cursor.x = mousePosition.x;
     cursor.y = mousePosition.y;
+    infoBox.x = mousePosition.x;
+    infoBox.y = mousePosition.y;
     if(heldItem) {
         if (heldItem.itemType == "crop" || heldItem.itemType == "seed" || heldItem.itemType == "fertilizer") {
             cursor.texture = heldItem.texture;

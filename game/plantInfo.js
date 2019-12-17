@@ -2,7 +2,8 @@
 //a class to store information that is the same for every plant
 //of a given type (e.g. all corn takes the same amount of time to grow)
 class PlantData {
-    constructor(maxGrowth, harvestAmount, value, color, seedPrice, types, tier) {
+    constructor(maxGrowth, harvestAmount, value, color, seedPrice, types, tier,
+                name, description) {
         //how much growth the plant takes to be harvestable
         this.maxGrowth = maxGrowth;
 
@@ -23,9 +24,16 @@ class PlantData {
 
         //the different plant types this plant is
         this.types = types;
+
         //the level of combination the plant is at
         //approximately a plant power level, but not exactly
         this.tier = tier;
+
+        //the name of the plant
+        this.name = name;
+
+        //a short description of the plant
+        this.description = description;
         Object.freeze(this);
     }
 }
@@ -41,7 +49,6 @@ class CropLocation extends PIXI.Container {
         this.width = width;
         this.height = height;
 
-        this.type = type;
         this.plant = null;
         this.growthSpeed = 1;
 
@@ -51,7 +58,7 @@ class CropLocation extends PIXI.Container {
         this.background.width = width;
         this.background.height = height;
         this.addChild(this.background);
-
+        
         //removes a plant from the CropLocation
         //also hides the growth bar
         //
@@ -77,6 +84,8 @@ class CropLocation extends PIXI.Container {
 
             this.growthBar.redrawBar();
         }
+
+
     }
 
     //grows the plant and updates the growth bar
@@ -206,21 +215,21 @@ let plantTextures;
 //to all information about it
 //see PlantData for what the numbers mean
 let plantDict = {
-    "melon": new PlantData(60, 1, 150, 0xCCFF66, 25, ["tropical", "gourd"], 2),
-    "banana": new PlantData(20, 6, 10, 0xFFFF00, 10, ["tropical"], 1),
-    "grapes": new PlantData(20, 4, 15, 0x8800BB, 10, ["tropical", "berry"], 2),
-    "strawberry": new PlantData(25, 10, 10, 0xFF2222, 25, ["berry"], 1),
-    "garlic": new PlantData(10, 10, 5, 0xFFFFBB, 5, ["spice"], 1),
-    "chilipepper": new PlantData(15, 15, 15, 0xFF1111, 5, ["spice", "stalk", "gourd"], 3),
-    "scallion": new PlantData(15, 5, 25, 0x88FF88, 10, ["leafy", "spice"], 2),
-    "lettuce": new PlantData(5, 1, 15, 0x55FF55, 15, ["leafy"], 1),
-    "onion": new PlantData(25, 3, 30, 0x889966, 10, ["leafy", "spice", "root"], 3),
-    "potato": new PlantData(15, 10, 5, 0x8765432, 20, ["root"], 1),
-    "greenbean": new PlantData(10, 20, 5, 0x66FF66, 5, ["root", "grain", "leafy"], 3),
-    "broccoli": new PlantData(30, 5, 25, 0x337733, 10, ["grain", "leafy"], 2),
-    "wheat": new PlantData(60, 10, 20, 0xCCCC00, 10, ["grain"], 1),
-    "corn": new PlantData(10, 5, 5, 0xCCCC00, 5, ["grain", "stalk"], 2),
-    "tomato": new PlantData(20, 10, 10, 0xFF5500, 10, ["stalk"], 1),
-    "bellpepper": new PlantData(30, 5, 40, 0xFFFF00, 10, ["stalk", "gourd"], 2),
-    "pumpkin": new PlantData(40, 1, 100, 0xFF7700, 10, ["gourd"], 1)
+    "melon": new PlantData(60, 1, 150, 0xCCFF66, 25, ["tropical", "gourd"], 2, "Melon", "a melon"),
+    "banana": new PlantData(20, 6, 10, 0xFFFF00, 10, ["tropical"], 1, "Banana", "a banana"),
+    "grapes": new PlantData(20, 4, 15, 0x8800BB, 10, ["tropical", "berry"], 2, "Grapes", "a grapes"),
+    "strawberry": new PlantData(25, 10, 10, 0xFF2222, 25, ["berry"], 1, "Strawberry", "a strawberry"),
+    "garlic": new PlantData(10, 10, 5, 0xFFFFBB, 5, ["spice"], 1, "Garlic", "a garlic"),
+    "chilipepper": new PlantData(15, 15, 15, 0xFF1111, 5, ["spice", "stalk", "gourd"], 3, "Chili Pepper", "a chili pepper"),
+    "scallion": new PlantData(15, 5, 25, 0x88FF88, 10, ["leafy", "spice"], 2, "Scallion", "a scallion"),
+    "lettuce": new PlantData(5, 1, 15, 0x55FF55, 15, ["leafy"], 1, "Lettuce", "a lettuce"),
+    "onion": new PlantData(25, 3, 30, 0x889966, 10, ["leafy", "spice", "root"], 3, "Onion", "a onion"),
+    "potato": new PlantData(15, 10, 5, 0x8765432, 20, ["root"], 1, "Potato", "a potato"),
+    "greenbean": new PlantData(10, 20, 5, 0x66FF66, 5, ["root", "grain", "leafy"], 3, "Green Bean", "a green bean"),
+    "broccoli": new PlantData(30, 5, 25, 0x337733, 10, ["grain", "leafy"], 2, "Broccoli", "a broccoli"),
+    "wheat": new PlantData(60, 10, 20, 0xCCCC00, 10, ["grain"], 1, "Wheat", "a wheat"),
+    "corn": new PlantData(10, 5, 5, 0xCCCC00, 5, ["grain", "stalk"], 2, "Corn", "a corn"),
+    "tomato": new PlantData(20, 10, 10, 0xFF5500, 10, ["stalk"], 1, "Tomato", "a tomato"),
+    "bellpepper": new PlantData(30, 5, 40, 0xFFFF00, 10, ["stalk", "gourd"], 2, "Bell Pepper", "a bell pepper"),
+    "pumpkin": new PlantData(40, 1, 100, 0xFF7700, 10, ["gourd"], 1, "Pumpkin", "a pumpkin")
 };
